@@ -28,9 +28,12 @@ typedef struct task_t {
 
   int eet;
   int ret;
+  int running_time;
   int prioridade;
   int quantum;
   int flag;
+  int inicio;
+  // int quant_tick;
 } task_t;
 
 // estrutura que define um semáforo

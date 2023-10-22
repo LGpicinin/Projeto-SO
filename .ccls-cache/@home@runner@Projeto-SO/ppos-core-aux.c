@@ -5,10 +5,13 @@
 #include <stdlib.h>
 #include <sys/time.h>
 
+#define DEBUG 1
+
 // ****************************************************************************
 // Coloque aqui as suas modificações, p.ex. includes, defines variáveis,
 // estruturas e funções
 // estrutura que define um tratador de sinal (deve ser global ou static)
+// int um_tick = 0;
 struct sigaction action;
 
 // estrutura de inicialização to timer
@@ -34,9 +37,11 @@ int task_getquantum(task_t *task) {
     return task->quantum;
 }
 
-void task_set_eet(task_t *task, int et, int rt) {
+void task_set_eet(task_t *task, int et) {
   task->eet = et;
-  task->ret = rt;
+  // task->quant_tick = et * um_tick;
+  task->running_time = 0;
+  task->ret = et;
 }
 
 int task_get_eet(task_t *task) {
@@ -70,18 +75,40 @@ int task_getprio(task_t *task) {
 void tratador() {
   int q;
   int flag = task_getflag(taskExec);
+  systemTime++;
+  // printf("oi7777\n");
   if (flag == 1) {
     task_setquantum(taskExec, task_getquantum(NULL) - 1);
-    
+    printf("oi3333\n");
+
     if (task_getquantum(NULL) == 0) {
+      // taskExec->quant_tick = taskExec->quant_tick - 20 * um_tick;
+      taskExec->running_time = taskExec->running_time + 20;
+      taskExec->ret = taskExec->ret - 20;
+      printf("oi1000\n");
+
       task_yield();
     }
   }
 }
+
 // ****************************************************************************
 
 void before_ppos_init() {
+
+  /*int aux_time;
   // put your customization here
+  // waiting for the first microsecond
+  while (systime() <= 0)
+    ;
+  // estimate how many iterations is a microsecond
+  aux_time = systime() + 1;
+  while (systime() < aux_time)
+    um_tick++;
+  printf("oi");
+  // adjusting value
+  // one_tick = (one_tick*90)/100;
+  printf("Loop iterations to microseconds = %d\n", um_tick);*/
 #ifdef DEBUG
   printf("\ninit - BEFORE");
 #endif
@@ -97,10 +124,10 @@ void after_ppos_init() {
     exit(1);
   }
   // ajusta valores do temporizador
-  timer.it_value.tv_usec = 1000;    // primeiro disparo, em micro-segundos
-  timer.it_value.tv_sec = 0;        // primeiro disparo, em segundos
+  timer.it_value.tv_usec = 1000; // primeiro disparo, em micro-segundos
+  // timer.it_value.tv_sec = 0;        // primeiro disparo, em segundos
   timer.it_interval.tv_usec = 1000; // disparos subsequentes, em micro-segundos
-  timer.it_interval.tv_sec = 0;     // disparos subsequentes, em segundos
+  // timer.it_interval.tv_sec = 0;     // disparos subsequentes, em segundos
 
   // arma o temporizador ITIMER_REAL (vide man setitimer)
   if (setitimer(ITIMER_REAL, &timer, 0) < 0) {
@@ -112,10 +139,9 @@ void after_ppos_init() {
 #endif
 }
 
-
 void before_task_create(task_t *task) {
   // put your customization here
-  
+
 #ifdef DEBUG
   printf("\ntask_create - BEFORE - [%d]", task->id);
 #endif
@@ -123,6 +149,7 @@ void before_task_create(task_t *task) {
 
 void after_task_create(task_t *task) {
   // put your customization here
+  // task->id = 2;
 #ifdef DEBUG
   printf("\ntask_create - AFTER - [%d]", task->id);
 #endif
@@ -487,19 +514,21 @@ task_t *scheduler() {
   // FCFS scheduler
   /*if (readyQueue != NULL) {
     return readyQueue;
-  }*/
+  }
+  return NULL;*/
   task_t *aux, *aux2;
-  
-  aux = readyQueue;
+  int idInicioFila = readyQueue->id;
+
+  aux = readyQueue->next;
   aux2 = readyQueue;
-  
-  while(aux != NULL){
-    if(aux->ret < aux2->ret){
+  printf("\n%d", aux->id);
+  while (aux->id != idInicioFila) {
+    if (aux->ret < aux2->ret) {
       aux2 = aux;
     }
     aux = aux->next;
   }
   aux2->quantum = 20;
-  
+
   return aux2;
 }
