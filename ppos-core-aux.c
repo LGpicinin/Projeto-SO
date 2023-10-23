@@ -82,10 +82,12 @@ void tratador() {
     // printf("oi3333\n");
     taskExec->running_time++;
     taskExec->ret--;
+    // printf("\n taskExec id %d \n taskExec ret %d\n", taskExec->id,
+    // taskExec->ret);
 
     if (task_getquantum(NULL) == 0) {
       // taskExec->quant_tick = taskExec->quant_tick - 20 * um_tick;
-      printf("oi1000\n");
+      // printf("oi1000\n");
 
       task_yield();
     }
@@ -150,6 +152,7 @@ void before_task_create(task_t *task) {
 void after_task_create(task_t *task) {
   // put your customization here
   task_setflag(task);
+  task_set_eet(task, 999999);
 #ifdef DEBUG
   printf("\ntask_create - AFTER - [%d]", task->id);
 #endif
@@ -525,13 +528,19 @@ task_t *scheduler() {
     idIgnore = 0;
   }
 
-  printf("\ntarefas = %ld\n%d - sheduler", countTasks, aux->id);
+  // printf("\ntarefas = %ld\nid no aux %d \n ret do aux %d\n", countTasks,
+  // aux->id, aux->ret);
+  // printf("ret no aux2 = %d \n id no aux2 = %d\n", aux2->ret, aux2->id);
   while (aux->id != idInicioFila) {
-    if (aux->ret < aux2->ret && aux->ret != idIgnore) {
+    if (aux->ret < aux2->ret && (aux->ret != idIgnore)) {
       aux2 = aux;
-      printf("ret = %d e id = %d", aux2->ret, aux2->id);
+      // printf("ret no aux = %d \n id no aux = %d\n", aux->ret, aux->id);
+      // printf("ret no aux2 = %d \n id no aux2 = %d\n", aux2->ret, aux2->id);
     }
     aux = aux->next;
+  }
+  if (aux2->id == 0) {
+    aux2 = aux2->next;
   }
   aux2->quantum = 20;
 

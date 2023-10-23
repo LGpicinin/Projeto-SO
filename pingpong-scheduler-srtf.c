@@ -11,7 +11,7 @@
 
 // task_t Pang, Peng, Ping, Pong, Pung ;
 
-#define USER_TASKS_MAX 10
+#define USER_TASKS_MAX 5
 task_t user_tasks[USER_TASKS_MAX];
 char user_tasks_names[USER_TASKS_MAX][15];
 // int user_tasks_execution_time[USER_TASKS_MAX] = {100, 200, 300, 400, 500,
@@ -79,7 +79,7 @@ int main(int argc, char *argv[]) {
   // waiting for the first microsecond
   while (systime() <= 0)
 
-    printf("%d\n", systemTime);
+    //printf("%d\n", systemTime);
   // estimate how many iterations is a microsecond
   aux_time = systime() + 1;
   while (systime() < aux_time) {
@@ -94,9 +94,9 @@ int main(int argc, char *argv[]) {
   for (i = 0; i < USER_TASKS_MAX; i++) {
     sprintf(&user_tasks_names[i][0], "UTask[%2d]", i);
     printf("Criando tarefa: %s\n", &user_tasks_names[i]);
-    printf("ababbababab");
+    //printf("ababbababab");
     task_create(&user_tasks[i], Body, &user_tasks_names[i]);
-    printf("amamama");
+    //printf("amamama");
     task_set_eet(&user_tasks[i], user_tasks_execution_time[i]);
   }
 
