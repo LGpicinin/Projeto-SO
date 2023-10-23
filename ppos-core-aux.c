@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <sys/time.h>
 
-#define DEBUG 1
+//#define DEBUG 1
 
 // ****************************************************************************
 // Coloque aqui as suas modificações, p.ex. includes, defines variáveis,
@@ -79,12 +79,12 @@ void tratador() {
   // printf("oi7777\n");
   if (flag == 1) {
     task_setquantum(taskExec, task_getquantum(NULL) - 1);
-    printf("oi3333\n");
+    // printf("oi3333\n");
+    taskExec->running_time++;
+    taskExec->ret--;
 
     if (task_getquantum(NULL) == 0) {
       // taskExec->quant_tick = taskExec->quant_tick - 20 * um_tick;
-      taskExec->running_time = taskExec->running_time + 20;
-      taskExec->ret = taskExec->ret - 20;
       printf("oi1000\n");
 
       task_yield();
@@ -149,7 +149,7 @@ void before_task_create(task_t *task) {
 
 void after_task_create(task_t *task) {
   // put your customization here
-  // task->id = 2;
+  task_setflag(task);
 #ifdef DEBUG
   printf("\ntask_create - AFTER - [%d]", task->id);
 #endif
@@ -517,14 +517,19 @@ task_t *scheduler() {
   }
   return NULL;*/
   task_t *aux, *aux2;
-  int idInicioFila = readyQueue->id;
+  int idInicioFila = readyQueue->id, idIgnore = -1;
 
   aux = readyQueue->next;
   aux2 = readyQueue;
-  printf("\n%d", aux->id);
+  if (countTasks > 1) {
+    idIgnore = 0;
+  }
+
+  printf("\ntarefas = %ld\n%d - sheduler", countTasks, aux->id);
   while (aux->id != idInicioFila) {
-    if (aux->ret < aux2->ret) {
+    if (aux->ret < aux2->ret && aux->ret != idIgnore) {
       aux2 = aux;
+      printf("ret = %d e id = %d", aux2->ret, aux2->id);
     }
     aux = aux->next;
   }

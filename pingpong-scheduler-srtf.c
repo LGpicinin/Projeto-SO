@@ -46,7 +46,7 @@ void Body(void *arg) {
   // realmente executou o X tempo que foi indicado como seu tempo de execucao
   while (taskExec->running_time < task_get_eet(NULL)) {
     end_time--;
-    printf("oi\n");
+    // printf("oi\n");
     if ((last_printed_line + 5) <= systime()) {
       printf("[%d]\t%s: interacao %d\t\t%d\n", systime(), (char *)arg, end_time,
              taskExec->running_time);
@@ -78,12 +78,13 @@ int main(int argc, char *argv[]) {
 
   // waiting for the first microsecond
   while (systime() <= 0)
+
     printf("%d\n", systemTime);
   // estimate how many iterations is a microsecond
   aux_time = systime() + 1;
   while (systime() < aux_time) {
     one_tick++;
-    printf("oi3");
+    // printf("oi3");
   }
   // adjusting value
   // one_tick = (one_tick*90)/100;
