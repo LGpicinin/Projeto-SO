@@ -33,6 +33,7 @@ typedef struct task_t {
   int quantum;
   int flag;
   int inicio;
+  int ativacoes;
   // int quant_tick;
 } task_t;
 

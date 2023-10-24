@@ -88,7 +88,6 @@ void tratador() {
     if (task_getquantum(NULL) == 0) {
       // taskExec->quant_tick = taskExec->quant_tick - 20 * um_tick;
       // printf("oi1000\n");
-
       task_yield();
     }
   }
@@ -153,6 +152,7 @@ void after_task_create(task_t *task) {
   // put your customization here
   task_setflag(task);
   task_set_eet(task, 999999);
+  task->inicio = systime();
 #ifdef DEBUG
   printf("\ntask_create - AFTER - [%d]", task->id);
 #endif
@@ -160,6 +160,10 @@ void after_task_create(task_t *task) {
 
 void before_task_exit() {
   // put your customization here
+  printf("Task [%d] exit: execution time %d ms, processor time %d ms, %d "
+         "activations\n",
+         taskExec->id, systime() - taskExec->inicio, taskExec->running_time,
+         taskExec->ativacoes);
 #ifdef DEBUG
   printf("\ntask_exit - BEFORE - [%d]", taskExec->id);
 #endif
@@ -174,6 +178,7 @@ void after_task_exit() {
 
 void before_task_switch(task_t *task) {
   // put your customization here
+  // task->ativacoes++;
 #ifdef DEBUG
   printf("\ntask_switch - BEFORE - [%d -> %d]", taskExec->id, task->id);
 #endif
@@ -181,6 +186,7 @@ void before_task_switch(task_t *task) {
 
 void after_task_switch(task_t *task) {
   // put your customization here
+  // task->ativacoes++;
 #ifdef DEBUG
   printf("\ntask_switch - AFTER - [%d -> %d]", taskExec->id, task->id);
 #endif
@@ -222,6 +228,7 @@ void before_task_resume(task_t *task) {
 
 void after_task_resume(task_t *task) {
   // put your customization here
+  task->ativacoes++;
 #ifdef DEBUG
   printf("\ntask_resume - AFTER - [%d]", task->id);
 #endif
@@ -543,6 +550,6 @@ task_t *scheduler() {
     aux2 = aux2->next;
   }
   aux2->quantum = 20;
-
+  aux2->ativacoes++;
   return aux2;
 }
