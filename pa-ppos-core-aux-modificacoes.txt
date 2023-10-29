@@ -1,0 +1,114 @@
+void task_setflag(task_t *task) { task->flag = 1; }
+
+int task_getflag(task_t *task) { return task->flag; }
+
+void task_setquantum(task_t *task, int q) {
+  if (task == NULL)
+    taskExec->quantum = q;
+  else
+    task->quantum = q;
+}
+
+int task_getquantum(task_t *task) {
+  if (task == NULL)
+    return taskExec->quantum;
+  else
+    return task->quantum;
+}
+
+void task_set_eet(task_t *task, int et) {
+  task->eet = et;
+  task->running_time = 0;
+  task->ret = et;
+}
+
+int task_get_eet(task_t *task) {
+  if (task == NULL)
+    return taskExec->eet;
+  else
+    return task->eet;
+}
+
+int task_get_ret(task_t *task) {
+  if (task == NULL)
+    return taskExec->ret;
+  else
+    return task->ret;
+}
+
+void tratador() {
+  int flag = task_getflag(taskExec);
+  systemTime++;
+  if (flag == 1) {
+    task_setquantum(taskExec, task_getquantum(NULL) - 1);
+    taskExec->running_time++;
+    taskExec->ret--;
+
+    if (task_getquantum(NULL) == 0) {
+      task_yield();
+    }
+  }
+}
+
+void after_ppos_init() {
+  action.sa_handler = tratador;
+  sigemptyset(&action.sa_mask);
+  action.sa_flags = 0;
+  if (sigaction(SIGALRM, &action, 0) < 0) {
+    perror("Erro em sigaction: ");
+    exit(1);
+  }
+  timer.it_value.tv_usec = 1000;
+  timer.it_interval.tv_usec = 1000;
+
+  if (setitimer(ITIMER_REAL, &timer, 0) < 0) {
+    perror("Erro em setitimer: ");
+    exit(1);
+  }
+#ifdef DEBUG
+  printf("\ninit - AFTER");
+#endif
+}
+
+void after_task_create(task_t *task) {
+  task_setflag(task);
+  task_set_eet(task, 999999);
+  task->inicio = systime();
+#ifdef DEBUG
+  printf("\ntask_create - AFTER - [%d]", task->id);
+#endif
+}
+
+void before_task_exit() {
+  printf("Task [%d] exit: execution time %d ms, processor time %d ms, %d "
+         "activations\n",
+         taskExec->id, systime() - taskExec->inicio, taskExec->running_time,
+         taskExec->ativacoes);
+#ifdef DEBUG
+  printf("\ntask_exit - BEFORE - [%d]", taskExec->id);
+#endif
+}
+
+task_t *scheduler() {
+  task_t *aux, *aux2;
+  int idInicioFila = readyQueue->id, idIgnore = -1;
+
+  aux = readyQueue->next;
+  aux2 = readyQueue;
+  if (countTasks > 1) {
+    idIgnore = 0;
+  }
+
+  while (aux->id != idInicioFila) {
+    if (aux->ret < aux2->ret && (aux->ret != idIgnore)) {
+      aux2 = aux;
+    }
+    aux = aux->next;
+  }
+  if (aux2->id == 0) {
+    aux2 = aux2->next;
+  }
+  task_setquantum(aux2, 20);
+  aux2->ativacoes++;
+  return aux2;
+}

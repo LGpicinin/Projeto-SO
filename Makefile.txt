@@ -1,0 +1,6 @@
+ppos_test5: ppos-core-aux.o pingpong-scheduler-srtf.o libppos_static.a
+	gcc -o ppos_test5 ppos-core-aux.c pingpong-scheduler-srtf.c libppos_static.a
+ppos-core-aux.o: ppos-core-aux.c
+  gcc -c ppos-core-aux.c
+pingpong-scheduler-srtf.o: pingpong-scheduler-srtf.c
+gcc -c pingpong-scheduler-srtf.c

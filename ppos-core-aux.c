@@ -73,7 +73,7 @@ int task_getprio(task_t *task) {
 }
 
 void tratador() {
-  int q;
+  // int q;
   int flag = task_getflag(taskExec);
   systemTime++;
   // printf("oi7777\n");
@@ -160,6 +160,7 @@ void after_task_create(task_t *task) {
 
 void before_task_exit() {
   // put your customization here
+  // taskExec->ativacoes++;
   printf("Task [%d] exit: execution time %d ms, processor time %d ms, %d "
          "activations\n",
          taskExec->id, systime() - taskExec->inicio, taskExec->running_time,
@@ -228,7 +229,7 @@ void before_task_resume(task_t *task) {
 
 void after_task_resume(task_t *task) {
   // put your customization here
-  task->ativacoes++;
+  // task->ativacoes++;
 #ifdef DEBUG
   printf("\ntask_resume - AFTER - [%d]", task->id);
 #endif
@@ -549,7 +550,8 @@ task_t *scheduler() {
   if (aux2->id == 0) {
     aux2 = aux2->next;
   }
-  aux2->quantum = 20;
+  task_setquantum(aux2, 20);
+  // aux2->quantum = 20;
   aux2->ativacoes++;
   return aux2;
 }
